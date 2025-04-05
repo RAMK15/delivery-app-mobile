@@ -7,9 +7,9 @@ import {
   Image,
   FlatList,
 } from 'react-native';
-import { Text } from '../../components/Themed';
 import { MaterialIcons, Ionicons } from '@expo/vector-icons';
 import { Link } from 'expo-router';
+import { ThemedText } from '@/components/ThemedText';
 
 type MenuItem = {
   icon: keyof typeof Ionicons.glyphMap;
@@ -81,15 +81,15 @@ export default function ProfileScreen() {
   const renderOrderItem = ({ item }: { item: OrderItem }) => (
     <TouchableOpacity style={styles.orderCard}>
       <View style={styles.orderHeader}>
-        <Text style={styles.restaurantName}>{item.restaurant}</Text>
-        <Text style={styles.orderStatus}>{item.status}</Text>
+        <ThemedText style={styles.restaurantName}>{item.restaurant}</ThemedText>
+        <ThemedText style={styles.orderStatus}>{item.status}</ThemedText>
       </View>
-      <Text style={styles.orderDate}>{item.date}</Text>
-      <Text style={styles.orderItems}>{item.items.join(', ')}</Text>
+      <ThemedText style={styles.orderDate}>{item.date}</ThemedText>
+      <ThemedText style={styles.orderItems}>{item.items.join(', ')}</ThemedText>
       <View style={styles.orderFooter}>
-        <Text style={styles.orderTotal}>Total: ${item.total.toFixed(2)}</Text>
+        <ThemedText style={styles.orderTotal}>Total: ${item.total.toFixed(2)}</ThemedText>
         <TouchableOpacity style={styles.reorderButton}>
-          <Text style={styles.reorderButtonText}>Reorder</Text>
+          <ThemedText style={styles.reorderButtonText}>Reorder</ThemedText>
         </TouchableOpacity>
       </View>
     </TouchableOpacity>
@@ -104,8 +104,8 @@ export default function ProfileScreen() {
             source={{ uri: user.avatar }}
           />
           <View>
-            <Text style={styles.name}>{user.name}</Text>
-            <Text style={styles.email}>{user.email}</Text>
+            <ThemedText style={styles.name}>{user.name}</ThemedText>
+            <ThemedText style={styles.email}>{user.email}</ThemedText>
           </View>
         </View>
       </View>
@@ -115,7 +115,7 @@ export default function ProfileScreen() {
           <TouchableOpacity key={index} style={styles.menuItem}>
             <View style={styles.menuItemContent}>
               <Ionicons name={item.icon as any} size={24} color="#666" />
-              <Text style={styles.menuItemText}>{item.title}</Text>
+              <ThemedText style={styles.menuItemText}>{item.title}</ThemedText>
             </View>
             <Ionicons name="chevron-forward" size={24} color="#666" />
           </TouchableOpacity>
@@ -123,7 +123,7 @@ export default function ProfileScreen() {
       </View>
 
       <View style={styles.ordersContainer}>
-        <Text style={styles.sectionTitle}>Past Orders</Text>
+        <ThemedText style={styles.sectionTitle}>Past Orders</ThemedText>
         <FlatList
           data={orderHistory}
           renderItem={renderOrderItem}
@@ -133,7 +133,7 @@ export default function ProfileScreen() {
       </View>
 
       <TouchableOpacity style={styles.logoutButton}>
-        <Text style={styles.logoutText}>Log Out</Text>
+        <ThemedText style={styles.logoutText}>Log Out</ThemedText>
       </TouchableOpacity>
     </ScrollView>
   );

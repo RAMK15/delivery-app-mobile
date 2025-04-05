@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, TextInput, StyleSheet, FlatList } from 'react-native';
-import { Text } from '../../components/Themed';
+import { ThemedText } from '@/components/ThemedText';
 
 export default function SearchScreen() {
   return (
@@ -13,7 +13,7 @@ export default function SearchScreen() {
         />
       </View>
       <View style={styles.content}>
-        <Text style={styles.heading}>Popular Searches</Text>
+        <ThemedText style={styles.heading}>Popular Searches</ThemedText>
         {/* Add popular searches here */}
       </View>
     </View>
