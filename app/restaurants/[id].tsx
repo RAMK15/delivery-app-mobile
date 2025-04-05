@@ -212,7 +212,9 @@ export default function RestaurantDetailScreen() {
     console.log('Adding item to cart:', {
       id: item.id,
       name: item.name,
-      restaurant: restaurant.name
+      restaurant: restaurant.name,
+      price: item.price,
+      image: item.image
     });
     const cartItem = {
       id: item.id,
