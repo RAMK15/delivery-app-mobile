@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
 import {
   View,
-  ScrollView,
   StyleSheet,
   TouchableOpacity,
   Image,
   Text,
   TextInput,
+  FlatList,
 } from 'react-native';
-import { Link } from 'expo-router';
+import { useLocalSearchParams, router } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useCart, CartItem } from '@/contexts/CartContext';
 
 const restaurants = [
   {
@@ -55,20 +56,44 @@ const restaurants = [
 ];
 
 export default function RestaurantsScreen() {
+  const { cuisine } = useLocalSearchParams<{ cuisine: string }>();
   const [searchQuery, setSearchQuery] = useState('');
+  const { items } = useCart();
 
   const filteredRestaurants = restaurants.filter((restaurant) => {
-    const searchLower = searchQuery.toLowerCase();
-    return (
-      restaurant.name.toLowerCase().includes(searchLower) ||
-      restaurant.cuisine.toLowerCase().includes(searchLower)
-    );
+    const matchesSearch = restaurant.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      restaurant.cuisine.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCuisine = !cuisine || restaurant.cuisine === cuisine;
+    return matchesSearch && matchesCuisine;
   });
 
+  const renderRestaurant = ({ item }: { item: typeof restaurants[0] }) => {
+    return (
+      <TouchableOpacity
+        style={styles.restaurantCard}
+        onPress={() => router.push(`/restaurants/${item.id}`)}
+      >
+        <Image source={{ uri: item.image }} style={styles.restaurantImage} />
+        <View style={styles.restaurantInfo}>
+          <Text style={styles.restaurantName}>{item.name}</Text>
+          <View style={styles.ratingContainer}>
+            <MaterialIcons name="star" size={16} color="#FFD700" />
+            <Text style={styles.rating}>{item.rating}</Text>
+          </View>
+          <Text style={styles.restaurantDetails}>
+            {item.cuisine} • {item.deliveryTime}
+          </Text>
+        </View>
+      </TouchableOpacity>
+    );
+  };
+
   return (
-    <ScrollView style={styles.container}>
+    <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Restaurants</Text>
+        <Text style={styles.title}>
+          {cuisine ? `${cuisine} Restaurants` : 'All Restaurants'}
+        </Text>
         <View style={styles.searchBar}>
           <MaterialIcons name="search" size={24} color="#666" />
           <TextInput
@@ -81,33 +106,18 @@ export default function RestaurantsScreen() {
         </View>
       </View>
 
-      <View style={styles.restaurantsList}>
-        {filteredRestaurants.map((restaurant) => (
-          <Link
-            key={restaurant.id}
-            href={`/restaurants/${restaurant.id}`}
-            asChild
-          >
-            <TouchableOpacity style={styles.restaurantCard}>
-              <Image
-                source={{ uri: restaurant.image }}
-                style={styles.restaurantImage}
-              />
-              <View style={styles.restaurantInfo}>
-                <Text style={styles.restaurantName}>{restaurant.name}</Text>
-                <View style={styles.ratingContainer}>
-                  <MaterialIcons name="star" size={16} color="#FFD700" />
-                  <Text style={styles.rating}>{restaurant.rating}</Text>
-                </View>
-                <Text style={styles.restaurantDetails}>
-                  {restaurant.cuisine} • {restaurant.deliveryTime}
-                </Text>
-              </View>
-            </TouchableOpacity>
-          </Link>
-        ))}
-      </View>
-    </ScrollView>
+      <FlatList
+        data={filteredRestaurants}
+        renderItem={renderRestaurant}
+        keyExtractor={(item) => item.id.toString()}
+        contentContainerStyle={styles.restaurantList}
+        ListEmptyComponent={
+          <View style={styles.noResults}>
+            <Text style={styles.noResultsText}>No restaurants found</Text>
+          </View>
+        }
+      />
+    </View>
   );
 }
 
@@ -129,22 +139,21 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#f0f0f0',
-    padding: 10,
     borderRadius: 8,
+    padding: 10,
   },
   searchInput: {
     flex: 1,
     marginLeft: 10,
     fontSize: 16,
-    color: '#000',
   },
-  restaurantsList: {
+  restaurantList: {
     padding: 20,
   },
   restaurantCard: {
     backgroundColor: '#fff',
     borderRadius: 12,
-    marginBottom: 20,
+    marginBottom: 15,
     overflow: 'hidden',
     shadowColor: '#000',
     shadowOffset: {
@@ -179,5 +188,15 @@ const styles = StyleSheet.create({
   restaurantDetails: {
     color: '#666',
     fontSize: 14,
+  },
+  noResults: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  noResultsText: {
+    fontSize: 16,
+    color: '#666',
   },
 }); 

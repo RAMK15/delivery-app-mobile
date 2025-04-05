@@ -9,7 +9,7 @@ import {
   ImageBackground,
   Text,
 } from 'react-native';
-import { Link } from 'expo-router';
+import { Link, router } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
 
 const { width } = Dimensions.get('window');
@@ -42,14 +42,24 @@ const featuredRestaurants = [
 ];
 
 const categories = [
-  { id: 1, name: 'Pizza', icon: 'local-pizza' as const },
-  { id: 2, name: 'Burger', icon: 'fastfood' as const },
-  { id: 3, name: 'Sushi', icon: 'restaurant' as const },
-  { id: 4, name: 'Salad', icon: 'eco' as const },
-  { id: 5, name: 'Dessert', icon: 'icecream' as const },
+  { id: 1, name: 'Pizza', icon: 'local-pizza' as const, cuisine: 'Italian' },
+  { id: 2, name: 'Burger', icon: 'fastfood' as const, cuisine: 'American' },
+  { id: 3, name: 'Sushi', icon: 'restaurant' as const, cuisine: 'Japanese' },
+  { id: 4, name: 'Salad', icon: 'eco' as const, cuisine: 'Healthy' },
+  { id: 5, name: 'Dessert', icon: 'icecream' as const, cuisine: 'Dessert' },
 ];
 
 export default function HomeScreen() {
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+
+  const handleCategoryPress = (cuisine: string) => {
+    setSelectedCategory(cuisine);
+    router.push({
+      pathname: '/restaurants',
+      params: { cuisine }
+    });
+  };
+
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       {/* Hero Section */}
@@ -77,13 +87,27 @@ export default function HomeScreen() {
           {categories.map((category) => (
             <TouchableOpacity
               key={category.id}
-              style={styles.categoryItem}
-              onPress={() => {}}
+              style={[
+                styles.categoryItem,
+                selectedCategory === category.cuisine && styles.selectedCategory,
+              ]}
+              onPress={() => handleCategoryPress(category.cuisine)}
             >
               <View style={styles.categoryIcon}>
-                <MaterialIcons name={category.icon} size={24} color="#FF6B6B" />
+                <MaterialIcons 
+                  name={category.icon} 
+                  size={24} 
+                  color={selectedCategory === category.cuisine ? '#fff' : '#FF6B6B'} 
+                />
               </View>
-              <Text style={styles.categoryName}>{category.name}</Text>
+              <Text 
+                style={[
+                  styles.categoryName,
+                  selectedCategory === category.cuisine && styles.selectedCategoryText,
+                ]}
+              >
+                {category.name}
+              </Text>
             </TouchableOpacity>
           ))}
         </ScrollView>
@@ -106,11 +130,12 @@ export default function HomeScreen() {
                 />
                 <View style={styles.restaurantInfo}>
                   <Text style={styles.restaurantName}>{restaurant.name}</Text>
+                  <View style={styles.ratingContainer}>
+                    <MaterialIcons name="star" size={16} color="#FFD700" />
+                    <Text style={styles.rating}>{restaurant.rating}</Text>
+                  </View>
                   <Text style={styles.restaurantDetails}>
-                    {restaurant.cuisine} • {restaurant.rating} ★
-                  </Text>
-                  <Text style={styles.restaurantDelivery}>
-                    {restaurant.deliveryTime}
+                    {restaurant.cuisine} • {restaurant.deliveryTime}
                   </Text>
                 </View>
               </TouchableOpacity>
@@ -174,6 +199,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginRight: 20,
   },
+  selectedCategory: {
+    backgroundColor: '#FF6B6B',
+    borderRadius: 15,
+    padding: 10,
+  },
   categoryIcon: {
     width: 60,
     height: 60,
@@ -193,6 +223,10 @@ const styles = StyleSheet.create({
   categoryName: {
     marginTop: 8,
     fontSize: 14,
+    color: '#666',
+  },
+  selectedCategoryText: {
+    color: '#fff',
   },
   restaurantCard: {
     width: width * 0.7,
@@ -222,13 +256,17 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 4,
   },
+  ratingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  rating: {
+    marginLeft: 4,
+    fontSize: 14,
+  },
   restaurantDetails: {
     fontSize: 14,
     color: '#666',
-    marginBottom: 4,
-  },
-  restaurantDelivery: {
-    fontSize: 14,
-    color: '#FF6B6B',
   },
 }); 
