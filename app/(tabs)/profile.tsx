@@ -10,6 +10,9 @@ import {
 import { MaterialIcons, Ionicons } from '@expo/vector-icons';
 import { Link } from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
+import { ThemedView } from '@/components/ThemedView';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { router } from 'expo-router';
 
 type MenuItem = {
   icon: keyof typeof Ionicons.glyphMap;
@@ -69,71 +72,74 @@ const orderHistory: OrderItem[] = [
 ];
 
 export default function ProfileScreen() {
-  const menuItems: MenuItem[] = [
-    { icon: 'person-outline', title: 'Personal Information' },
-    { icon: 'location-outline', title: 'Saved Addresses' },
-    { icon: 'card-outline', title: 'Payment Methods' },
-    { icon: 'notifications-outline', title: 'Notifications' },
-    { icon: 'settings-outline', title: 'Settings' },
-    { icon: 'help-circle-outline', title: 'Help & Support' },
+  const sections = [
+    {
+      title: 'Account',
+      items: [
+        { icon: 'person', title: 'Personal Information', route: '/profile/personal-info' },
+        { icon: 'notifications', title: 'Notifications', route: '/profile/notifications' },
+        { icon: 'payment', title: 'Payment Methods', route: '/profile/payment' },
+      ]
+    },
+    {
+      title: 'Orders & Addresses',
+      items: [
+        { icon: 'history', title: 'Order History', route: '/profile/orders' },
+        { icon: 'location-on', title: 'Saved Addresses', route: '/profile/addresses' },
+      ]
+    },
+    {
+      title: 'Support & Settings',
+      items: [
+        { icon: 'help', title: 'Help & Support', route: '/profile/help' },
+        { icon: 'settings', title: 'Settings', route: '/profile/settings' },
+      ]
+    }
   ];
 
-  const renderOrderItem = ({ item }: { item: OrderItem }) => (
-    <TouchableOpacity style={styles.orderCard}>
-      <View style={styles.orderHeader}>
-        <ThemedText style={styles.restaurantName}>{item.restaurant}</ThemedText>
-        <ThemedText style={styles.orderStatus}>{item.status}</ThemedText>
-      </View>
-      <ThemedText style={styles.orderDate}>{item.date}</ThemedText>
-      <ThemedText style={styles.orderItems}>{item.items.join(', ')}</ThemedText>
-      <View style={styles.orderFooter}>
-        <ThemedText style={styles.orderTotal}>Total: ${item.total.toFixed(2)}</ThemedText>
-        <TouchableOpacity style={styles.reorderButton}>
-          <ThemedText style={styles.reorderButtonText}>Reorder</ThemedText>
-        </TouchableOpacity>
-      </View>
-    </TouchableOpacity>
-  );
+  const handleLogout = async () => {
+    try {
+      await AsyncStorage.removeItem('authToken');
+      router.replace('/(auth)/login');
+    } catch (error) {
+      console.error('Error logging out:', error);
+    }
+  };
 
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
-        <View style={styles.profileInfo}>
-          <Image
-            style={styles.avatar}
-            source={{ uri: user.avatar }}
-          />
-          <View>
-            <ThemedText style={styles.name}>{user.name}</ThemedText>
-            <ThemedText style={styles.email}>{user.email}</ThemedText>
-          </View>
-        </View>
-      </View>
-
-      <View style={styles.menuContainer}>
-        {menuItems.map((item, index) => (
-          <TouchableOpacity key={index} style={styles.menuItem}>
-            <View style={styles.menuItemContent}>
-              <Ionicons name={item.icon as any} size={24} color="#666" />
-              <ThemedText style={styles.menuItemText}>{item.title}</ThemedText>
-            </View>
-            <Ionicons name="chevron-forward" size={24} color="#666" />
-          </TouchableOpacity>
-        ))}
-      </View>
-
-      <View style={styles.ordersContainer}>
-        <ThemedText style={styles.sectionTitle}>Past Orders</ThemedText>
-        <FlatList
-          data={orderHistory}
-          renderItem={renderOrderItem}
-          keyExtractor={(item) => item.id.toString()}
-          scrollEnabled={false}
+        <Image 
+          source={{ uri: user.avatar }} 
+          style={styles.avatar}
         />
+        <ThemedText style={styles.name}>{user.name}</ThemedText>
+        <ThemedText style={styles.email}>{user.email}</ThemedText>
       </View>
 
-      <TouchableOpacity style={styles.logoutButton}>
-        <ThemedText style={styles.logoutText}>Log Out</ThemedText>
+      {sections.map((section, index) => (
+        <View key={section.title} style={[styles.section, index > 0 && styles.sectionMargin]}>
+          <ThemedText style={styles.sectionTitle}>{section.title}</ThemedText>
+          {section.items.map((item, itemIndex) => (
+            <TouchableOpacity
+              key={item.title}
+              style={[
+                styles.menuItem,
+                itemIndex === section.items.length - 1 && styles.menuItemLast
+              ]}
+              onPress={() => router.push(item.route)}
+            >
+              <MaterialIcons name={item.icon} size={24} color="#2ecc71" />
+              <ThemedText style={styles.menuText}>{item.title}</ThemedText>
+              <MaterialIcons name="chevron-right" size={24} color="#666" />
+            </TouchableOpacity>
+          ))}
+        </View>
+      ))}
+
+      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+        <MaterialIcons name="logout" size={24} color="#fff" />
+        <ThemedText style={styles.logoutText}>Logout</ThemedText>
       </TouchableOpacity>
     </ScrollView>
   );
@@ -145,119 +151,73 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
   },
   header: {
-    backgroundColor: '#fff',
+    alignItems: 'center',
     padding: 20,
+    backgroundColor: '#fff',
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
   },
-  profileInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
   avatar: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    marginRight: 15,
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    marginBottom: 10,
   },
   name: {
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 4,
+    marginBottom: 5,
   },
   email: {
+    fontSize: 16,
     color: '#666',
   },
-  menuContainer: {
+  section: {
     backgroundColor: '#fff',
+    marginHorizontal: 15,
+    borderRadius: 12,
+    overflow: 'hidden',
+  },
+  sectionMargin: {
     marginTop: 20,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#666',
+    padding: 15,
+    paddingBottom: 10,
+    backgroundColor: '#f8f8f8',
   },
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    padding: 15,
+    borderTopWidth: 1,
+    borderTopColor: '#f0f0f0',
   },
-  menuItemContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  menuItemLast: {
+    borderBottomWidth: 0,
   },
-  menuItemText: {
+  menuText: {
+    flex: 1,
     marginLeft: 15,
     fontSize: 16,
   },
-  ordersContainer: {
-    backgroundColor: '#fff',
-    marginTop: 20,
-    padding: 16,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 16,
-  },
-  orderCard: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: '#eee',
-  },
-  orderHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 8,
-  },
-  restaurantName: {
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  orderStatus: {
-    color: '#2ecc71',
-  },
-  orderDate: {
-    color: '#666',
-    marginBottom: 8,
-  },
-  orderItems: {
-    marginBottom: 8,
-  },
-  orderFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 8,
-    paddingTop: 8,
-    borderTopWidth: 1,
-    borderTopColor: '#eee',
-  },
-  orderTotal: {
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  reorderButton: {
-    backgroundColor: '#FF6B6B',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 4,
-  },
-  reorderButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-  },
   logoutButton: {
-    margin: 20,
-    backgroundColor: '#FF6B6B',
-    padding: 15,
-    borderRadius: 8,
+    backgroundColor: '#e74c3c',
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
+    margin: 15,
+    marginTop: 30,
+    padding: 15,
+    borderRadius: 12,
   },
   logoutText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+    marginLeft: 10,
   },
 }); 

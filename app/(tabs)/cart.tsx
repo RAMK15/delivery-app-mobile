@@ -17,20 +17,20 @@ export default function CartScreen() {
       <View style={styles.quantityContainer}>
         <TouchableOpacity
           style={styles.quantityButton}
-          onPress={() => updateQuantity(item.id, -1)}
+          onPress={() => updateQuantity(item.id, -1, item.restaurant)}
         >
           <Text style={styles.quantityButtonText}>-</Text>
         </TouchableOpacity>
         <Text style={styles.quantityText}>{item.quantity}</Text>
         <TouchableOpacity
           style={styles.quantityButton}
-          onPress={() => updateQuantity(item.id, 1)}
+          onPress={() => updateQuantity(item.id, 1, item.restaurant)}
         >
           <Text style={styles.quantityButtonText}>+</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.removeButton}
-          onPress={() => removeItem(item.id)}
+          onPress={() => removeItem(item.id, item.restaurant)}
         >
           <Text style={styles.removeButtonText}>Remove</Text>
         </TouchableOpacity>
@@ -43,7 +43,7 @@ export default function CartScreen() {
       <FlatList
         data={items}
         renderItem={renderItem}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item) => `${item.id}-${item.restaurant}`}
         ListEmptyComponent={
           <Text style={styles.emptyText}>Your cart is empty</Text>
         }

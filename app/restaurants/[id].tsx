@@ -179,12 +179,13 @@ const menuItems = {
 };
 
 export default function RestaurantDetailScreen() {
-  const { id } = useLocalSearchParams();
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const restaurantId = parseInt(id, 10);
   const [searchQuery, setSearchQuery] = useState('');
   const { items, addItem, updateQuantity } = useCart();
 
-  const restaurant = restaurants.find((r) => r.id === Number(id));
-  const currentMenuItems = menuItems[Number(id) as keyof typeof menuItems] || [];
+  const restaurant = restaurants.find((r) => r.id === restaurantId);
+  const currentMenuItems = menuItems[restaurantId as keyof typeof menuItems] || [];
 
   if (!restaurant) {
     return (
@@ -208,8 +209,12 @@ export default function RestaurantDetailScreen() {
   };
 
   const handleAddToCart = (item: typeof currentMenuItems[0]) => {
-    console.log('Adding item to cart:', item); // Debug log
-    const cartItem: Omit<CartItem, 'quantity'> = {
+    console.log('Adding item to cart:', {
+      id: item.id,
+      name: item.name,
+      restaurant: restaurant.name
+    });
+    const cartItem = {
       id: item.id,
       name: item.name,
       price: item.price,
@@ -220,8 +225,12 @@ export default function RestaurantDetailScreen() {
   };
 
   const handleUpdateQuantity = (itemId: number, change: number) => {
-    console.log('Updating quantity:', { itemId, change }); // Debug log
-    updateQuantity(itemId, change);
+    console.log('Updating quantity:', {
+      itemId,
+      change,
+      restaurant: restaurant.name
+    });
+    updateQuantity(itemId, change, restaurant.name);
   };
 
   return (
@@ -254,7 +263,6 @@ export default function RestaurantDetailScreen() {
       <View style={styles.menuContainer}>
         {filteredMenuItems.map((item) => {
           const quantity = getItemQuantity(item.id);
-          console.log(`Item ${item.name} quantity:`, quantity); // Debug log
           
           return (
             <TouchableOpacity key={item.id} style={styles.menuItem}>

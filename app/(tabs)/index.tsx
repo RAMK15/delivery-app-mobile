@@ -72,11 +72,12 @@ export default function HomeScreen() {
           <Text style={styles.heroSubtitle}>
             Order from your favorite restaurants
           </Text>
-          <Link href="/restaurants" asChild>
-            <TouchableOpacity style={styles.heroButton}>
-              <Text style={styles.heroButtonText}>Order Now</Text>
-            </TouchableOpacity>
-          </Link>
+          <TouchableOpacity 
+            style={styles.heroButton}
+            onPress={() => router.push('/restaurants')}
+          >
+            <Text style={styles.heroButtonText}>Order Now</Text>
+          </TouchableOpacity>
         </View>
       </ImageBackground>
 
@@ -118,28 +119,26 @@ export default function HomeScreen() {
         <Text style={styles.sectionTitle}>Featured Restaurants</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           {featuredRestaurants.map((restaurant) => (
-            <Link
+            <TouchableOpacity
               key={restaurant.id}
-              href={`/restaurants/${restaurant.id}`}
-              asChild
+              style={styles.restaurantCard}
+              onPress={() => router.push(`/restaurants/${restaurant.id}`)}
             >
-              <TouchableOpacity style={styles.restaurantCard}>
-                <Image
-                  source={{ uri: restaurant.image }}
-                  style={styles.restaurantImage}
-                />
-                <View style={styles.restaurantInfo}>
-                  <Text style={styles.restaurantName}>{restaurant.name}</Text>
-                  <View style={styles.ratingContainer}>
-                    <MaterialIcons name="star" size={16} color="#FFD700" />
-                    <Text style={styles.rating}>{restaurant.rating}</Text>
-                  </View>
-                  <Text style={styles.restaurantDetails}>
-                    {restaurant.cuisine} • {restaurant.deliveryTime}
-                  </Text>
+              <Image
+                source={{ uri: restaurant.image }}
+                style={styles.restaurantImage}
+              />
+              <View style={styles.restaurantInfo}>
+                <Text style={styles.restaurantName}>{restaurant.name}</Text>
+                <View style={styles.ratingContainer}>
+                  <MaterialIcons name="star" size={16} color="#FFD700" />
+                  <Text style={styles.rating}>{restaurant.rating}</Text>
                 </View>
-              </TouchableOpacity>
-            </Link>
+                <Text style={styles.restaurantDetails}>
+                  {restaurant.cuisine} • {restaurant.deliveryTime}
+                </Text>
+              </View>
+            </TouchableOpacity>
           ))}
         </ScrollView>
       </View>
