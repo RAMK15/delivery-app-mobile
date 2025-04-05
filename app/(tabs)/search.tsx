@@ -147,17 +147,17 @@ export default function SearchScreen() {
   };
 
   const handleCategoryPress = (category: string) => {
-    router.push(`/restaurants?cuisine=${category}`);
+    router.push(`/restaurant?cuisine=${category}`);
   };
 
-  const handleResultPress = (id: number) => {
-    router.push(`/restaurants/${id}`);
+  const handleRestaurantPress = (id: string) => {
+    router.push(`/restaurant/${id}`);
   };
 
   const renderSearchResult = ({ item }: { item: SearchResult }) => (
     <TouchableOpacity
       style={styles.resultItem}
-      onPress={() => handleResultPress(item.id)}
+      onPress={() => handleRestaurantPress(item.id.toString())}
     >
       <View style={styles.resultContent}>
         <ThemedText style={styles.resultName}>{item.name}</ThemedText>

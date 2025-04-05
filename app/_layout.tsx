@@ -26,7 +26,6 @@ export default function RootLayout() {
 
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const colorScheme = useColorScheme();
-  const backgroundColor = useThemeColor({}, 'background');
 
   useEffect(() => {
     checkAuthStatus();
@@ -61,32 +60,6 @@ export default function RootLayout() {
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="(auth)" options={{ headerShown: false }} />
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen 
-            name="restaurants" 
-            options={{
-              headerShown: true,
-              headerStyle: {
-                backgroundColor,
-              },
-              headerShadowVisible: false,
-              headerBackTitle: 'Back',
-              headerTintColor: '#2ecc71',
-              title: 'Restaurants'
-            }} 
-          />
-          <Stack.Screen 
-            name="restaurants/[id]" 
-            options={{
-              headerShown: true,
-              headerStyle: {
-                backgroundColor,
-              },
-              headerShadowVisible: false,
-              headerBackTitle: 'Back',
-              headerTintColor: '#2ecc71',
-              title: 'Restaurant Details'
-            }} 
-          />
         </Stack>
       </CartProvider>
     </ThemeProvider>

@@ -1,68 +1,66 @@
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Tabs } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import Colors from '../../constants/Colors';
+import { useColorScheme } from 'react-native';
+import Colors from '@/constants/Colors';
 
-export default function TabsLayout() {
+function TabBarIcon(props: {
+  name: React.ComponentProps<typeof FontAwesome>['name'];
+  color: string;
+}) {
+  return <FontAwesome size={28} style={{ marginBottom: -3 }} {...props} />;
+}
+
+export default function TabLayout() {
+  const colorScheme = useColorScheme();
+
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
-      <Tabs
-        screenOptions={({ route }) => ({
-          tabBarActiveTintColor: Colors.light.tint,
-          tabBarInactiveTintColor: Colors.light.tabIconDefault,
+    <Tabs
+      screenOptions={{
+        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+        tabBarInactiveTintColor: '#999',
+        tabBarStyle: { borderTopWidth: 1, borderTopColor: '#eee' },
+      }}>
+      <Tabs.Screen
+        name="index"
+        options={{
+          title: 'Home',
+          tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,
           headerShown: false,
-          tabBarStyle: {
-            display: 'flex',
-            backgroundColor: '#fff',
-            borderTopColor: '#eee',
-          },
-          tabBarIcon: ({ focused, color, size }) => {
-            let iconName: keyof typeof Ionicons.glyphMap = 'home';
-
-            switch (route.name) {
-              case 'index':
-                iconName = focused ? 'home' : 'home-outline';
-                break;
-              case 'search':
-                iconName = focused ? 'search' : 'search-outline';
-                break;
-              case 'cart':
-                iconName = focused ? 'cart' : 'cart-outline';
-                break;
-              case 'profile':
-                iconName = focused ? 'person' : 'person-outline';
-                break;
-            }
-
-            return <Ionicons name={iconName} size={size} color={color} />;
-          },
-        })}
-      >
-        <Tabs.Screen
-          name="index"
-          options={{
-            title: 'Home',
-          }}
-        />
-        <Tabs.Screen
-          name="search"
-          options={{
-            title: 'Search',
-          }}
-        />
-        <Tabs.Screen
-          name="cart"
-          options={{
-            title: 'Cart',
-          }}
-        />
-        <Tabs.Screen
-          name="profile"
-          options={{
-            title: 'Profile',
-          }}
-        />
-      </Tabs>
-    </SafeAreaView>
+        }}
+      />
+      <Tabs.Screen
+        name="search"
+        options={{
+          title: 'Search',
+          tabBarIcon: ({ color }) => <TabBarIcon name="search" color={color} />,
+          headerShown: false,
+        }}
+      />
+      <Tabs.Screen
+        name="cart"
+        options={{
+          title: 'Cart',
+          tabBarIcon: ({ color }) => <TabBarIcon name="shopping-cart" color={color} />,
+          headerShown: false,
+        }}
+      />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: 'Profile',
+          tabBarIcon: ({ color }) => <TabBarIcon name="user" color={color} />,
+          headerShown: false,
+        }}
+      />
+      
+      {/* Hidden screens - these won't affect tab bar layout */}
+      <Tabs.Screen
+        name="restaurant"
+        options={{
+          href: null,
+          headerShown: false
+        }}
+      />
+    </Tabs>
   );
 }
