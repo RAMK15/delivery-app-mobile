@@ -1,14 +1,16 @@
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
-import { User, UserRole, IUser } from '../models/User';
-import { OTP } from '../models/OTP';
+import { User, UserRole } from '../models/user.model';
+import { OTP } from '../models/otp.model';
 import { sendSMS, generateOTP, formatPhoneNumber } from '../utils/sms';
-import { asyncHandler } from '../utils/response';
+import { asyncHandler, ApiResponse } from '../utils/response';
 import { Types } from 'mongoose';
+import { AuthRequest } from '../middleware/auth.middleware';
+import { config } from '../config/config';
 
 // Generate JWT token
 const generateToken = (id: string): string => {
-  return jwt.sign({ id }, process.env.JWT_SECRET as string, {
+  return jwt.sign({ id }, config.jwtSecret, {
     expiresIn: '30d',
   });
 };
@@ -20,10 +22,7 @@ export const sendOTP = asyncHandler(async (req: Request, res: Response) => {
   const { phoneNumber, countryCode } = req.body;
 
   if (!phoneNumber) {
-    return res.status(400).json({
-      success: false,
-      message: 'Phone number is required',
-    });
+    return ApiResponse.error(res, 'Phone number is required', 400);
   }
 
   // Format phone number to E.164 format
@@ -34,7 +33,7 @@ export const sendOTP = asyncHandler(async (req: Request, res: Response) => {
 
   // Calculate expiry (5 minutes from now)
   const expiresAt = new Date();
-  expiresAt.setMinutes(expiresAt.getMinutes() + 5);
+  expiresAt.setMinutes(expiresAt.getMinutes() + 10);
 
   // Save OTP to database
   await OTP.findOneAndUpdate(
@@ -53,29 +52,20 @@ export const sendOTP = asyncHandler(async (req: Request, res: Response) => {
   const smsSent = await sendSMS(formattedPhone, message);
 
   if (!smsSent) {
-    return res.status(500).json({
-      success: false,
-      message: 'Failed to send OTP',
-    });
+    return ApiResponse.error(res, 'Failed to send OTP', 500);
   }
 
-  res.status(200).json({
-    success: true,
-    message: 'OTP sent successfully',
-  });
+  return ApiResponse.success(res, null, 'OTP sent successfully');
 });
 
 // @desc    Verify OTP and login/signup user
 // @route   POST /api/auth/verify-otp
 // @access  Public
 export const verifyOTP = asyncHandler(async (req: Request, res: Response) => {
-  const { phoneNumber, otp, countryCode, name } = req.body;
+  const { phoneNumber, otp, countryCode, name, role } = req.body;
 
   if (!phoneNumber || !otp) {
-    return res.status(400).json({
-      success: false,
-      message: 'Phone number and OTP are required',
-    });
+    return ApiResponse.error(res, 'Phone number and OTP are required', 400);
   }
 
   const formattedPhone = formatPhoneNumber(phoneNumber, countryCode);
@@ -89,10 +79,7 @@ export const verifyOTP = asyncHandler(async (req: Request, res: Response) => {
   });
 
   if (!otpRecord) {
-    return res.status(400).json({
-      success: false,
-      message: 'Invalid or expired OTP',
-    });
+    return ApiResponse.error(res, 'Invalid or expired OTP', 400);
   }
 
   // Mark OTP as verified
@@ -100,37 +87,37 @@ export const verifyOTP = asyncHandler(async (req: Request, res: Response) => {
   await otpRecord.save();
 
   // Find or create user
-  let user: (IUser & { _id: Types.ObjectId }) | null = await User.findOne({ phone: formattedPhone });
+  let user = await User.findOne({ phone: formattedPhone });
 
   if (!user) {
     // Create new user if doesn't exist
     user = await User.create({
       phone: formattedPhone,
       name: name || 'User',
-      role: UserRole.CUSTOMER,
+      role: role && Object.values(UserRole).includes(role as UserRole) ? role : UserRole.CUSTOMER,
       address: {
-        location: {
-          type: 'Point',
-          coordinates: [0, 0] // Default coordinates
-        }
+        street: '',
+        city: '',
+        state: '',
+        zipCode: ''
       }
-    }) as IUser & { _id: Types.ObjectId };
+    });
+  } else if (role && Object.values(UserRole).includes(role as UserRole)) {
+    // Update role if provided and valid
+    user.role = role as UserRole;
+    await user.save();
   }
 
   // Generate token
   const token = generateToken(user._id.toString());
 
-  res.status(200).json({
-    success: true,
-    message: 'OTP verified successfully',
-    data: {
-      token,
-      user: {
-        id: user._id,
-        name: user.name,
-        phone: user.phone,
-        role: user.role,
-      },
+  return ApiResponse.success(res, {
+    token,
+    user: {
+      id: user._id,
+      name: user.name,
+      phone: user.phone,
+      role: user.role,
     },
-  });
+  }, 'OTP verified successfully');
 }); 

@@ -1,0 +1,99 @@
+{
+  "restaurants": [
+    {
+      "name": "Taj Spice House",
+      "description": "Authentic North Indian cuisine with a modern twist",
+      "cuisineType": ["North Indian", "Mughlai"],
+      "priceRange": "$$",
+      "rating": 4.5,
+      "address": {
+        "street": "123 Gandhi Road",
+        "city": "Deoghar",
+        "state": "Jharkhand",
+        "zipCode": "814112"
+      },
+      "location": {
+        "type": "Point",
+        "coordinates": [86.687053, 24.491167]
+      },
+      "openingHours": [
+        {
+          "day": "Monday",
+          "open": "11:00",
+          "close": "23:00"
+        }
+      ],
+      "phoneNumber": "+919876543210",
+      "email": "taj.spice@example.com",
+      "website": "http://tajspice.example.com",
+      "images": [],
+      "status": "open"
+    }
+  ],
+  "categories": [
+    "appetizer",
+    "main_course",
+    "dessert",
+    "beverage",
+    "side"
+  ],
+  "cuisineTypes": [
+    "North Indian",
+    "South Indian",
+    "Chinese",
+    "Mughlai",
+    "Fast Food",
+    "Pizza",
+    "Street Food"
+  ],
+  "commonDishes": {
+    "northIndian": [
+      {
+        "name": "Paneer Butter Masala",
+        "description": "Cottage cheese in rich tomato gravy",
+        "price": 280,
+        "category": "main_course",
+        "isAvailable": true
+      },
+      {
+        "name": "Chicken Tikka",
+        "description": "Marinated and grilled chicken pieces",
+        "price": 340,
+        "category": "appetizer",
+        "isAvailable": true
+      }
+    ],
+    "southIndian": [
+      {
+        "name": "Masala Dosa",
+        "description": "Crispy crepe with potato filling",
+        "price": 120,
+        "category": "main_course",
+        "isAvailable": true
+      },
+      {
+        "name": "Idli Sambar",
+        "description": "Steamed rice cakes with lentil soup",
+        "price": 80,
+        "category": "main_course",
+        "isAvailable": true
+      }
+    ],
+    "fastFood": [
+      {
+        "name": "Classic Chicken Burger",
+        "description": "Grilled chicken patty with fresh veggies",
+        "price": 180,
+        "category": "main_course",
+        "isAvailable": true
+      },
+      {
+        "name": "Margherita Pizza",
+        "description": "Classic pizza with tomato and cheese",
+        "price": 250,
+        "category": "main_course",
+        "isAvailable": true
+      }
+    ]
+  }
+} 

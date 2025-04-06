@@ -1,20 +1,22 @@
-import { Response } from 'express';
+import { Response, Request, NextFunction } from 'express';
 
 export class ApiResponse {
   static success(res: Response, data: any = null, message: string = 'Success', statusCode: number = 200) {
-    return res.status(statusCode).json({
+    const response = {
       success: true,
       message,
       data,
-    });
+    };
+    return res.status(statusCode).json(response);
   }
 
   static error(res: Response, message: string = 'Error occurred', statusCode: number = 500, errors: any = null) {
-    return res.status(statusCode).json({
+    const response = {
       success: false,
       message,
       errors,
-    });
+    };
+    return res.status(statusCode).json(response);
   }
 }
 
@@ -31,37 +33,54 @@ export class ErrorHandler extends Error {
   }
 }
 
-export const asyncHandler = (fn: Function) => (req: any, res: any, next: any) => {
+type AsyncFunction = (req: Request, res: Response, next: NextFunction) => Promise<any>;
+
+export const asyncHandler = (fn: AsyncFunction) => (req: Request, res: Response, next: NextFunction) => {
   Promise.resolve(fn(req, res, next)).catch(next);
 };
 
-export const errorMiddleware = (err: any, req: any, res: Response, next: any) => {
-  err.statusCode = err.statusCode || 500;
-  err.message = err.message || 'Internal Server Error';
+export const errorMiddleware = (err: any, req: Request, res: Response, next: NextFunction) => {
+  console.error(err.stack);
 
+  // Handle mongoose validation errors
   if (err.name === 'ValidationError') {
-    const message = Object.values(err.errors).map((value: any) => value.message);
-    return ApiResponse.error(res, 'Validation Error', 400, message);
+    const errors = Object.values(err.errors).map((error: any) => error.message);
+    return res.status(400).json({
+      success: false,
+      error: 'Validation Error',
+      details: errors
+    });
   }
 
+  // Handle mongoose duplicate key errors
   if (err.code === 11000) {
     const field = Object.keys(err.keyValue)[0];
-    const message = `Duplicate value entered for ${field} field`;
-    return ApiResponse.error(res, message, 400);
+    return res.status(400).json({
+      success: false,
+      error: 'Duplicate Field',
+      message: `${field} already exists`
+    });
   }
 
-  if (err.name === 'CastError') {
-    const message = `Resource not found. Invalid: ${err.path}`;
-    return ApiResponse.error(res, message, 404);
-  }
-
+  // Handle JWT errors
   if (err.name === 'JsonWebTokenError') {
-    return ApiResponse.error(res, 'Invalid token', 401);
+    return res.status(401).json({
+      success: false,
+      error: 'Invalid Token'
+    });
   }
 
+  // Handle JWT expiry errors
   if (err.name === 'TokenExpiredError') {
-    return ApiResponse.error(res, 'Token expired', 401);
+    return res.status(401).json({
+      success: false,
+      error: 'Token Expired'
+    });
   }
 
-  return ApiResponse.error(res, err.message, err.statusCode, err.errors);
+  // Default error
+  res.status(err.status || 500).json({
+    success: false,
+    error: err.message || 'Server Error'
+  });
 }; 

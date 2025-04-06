@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import { User, UserRole } from '../models/User';
+import { User, UserRole } from '../models/user.model';
+import { config } from '../config/config';
 
 interface JwtPayload {
   id: string;
@@ -30,7 +31,7 @@ export const protect = async (req: Request, res: Response, next: NextFunction) =
       });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as JwtPayload;
+    const decoded = jwt.verify(token, config.jwtSecret) as JwtPayload;
     const user = await User.findById(decoded.id).select('-password');
 
     if (!user) {

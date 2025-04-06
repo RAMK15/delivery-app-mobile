@@ -6,6 +6,9 @@ import morgan from 'morgan';
 import connectDB from './config/database';
 import { errorMiddleware } from './utils/response';
 import authRoutes from './routes/auth.routes';
+import restaurantRoutes from './routes/restaurant.routes';
+import orderRoutes from './routes/order.routes';
+import dummyRoutes from './routes/dummy.routes';
 
 // Load env vars
 dotenv.config();
@@ -26,11 +29,12 @@ app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/restaurants', restaurantRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/dummy', dummyRoutes);
 // TODO: Add other routes here
 // app.use('/api/users', userRoutes);
-// app.use('/api/restaurants', restaurantRoutes);
 // app.use('/api/menu-items', menuItemRoutes);
-// app.use('/api/orders', orderRoutes);
 
 // Error handling middleware
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
