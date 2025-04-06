@@ -1,50 +1,80 @@
-# Welcome to your Expo app 👋
+# Delivery App Backend
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A modern delivery application backend built with Node.js, Express, and MongoDB.
 
-## Get started
+## Documentation
 
-1. Install dependencies
+- [API Documentation](backend/API_DOCUMENTATION.md) - Detailed documentation of all API endpoints
+- [Database Schema](backend/DATABASE_SCHEMA.md) - Complete database schema and relationships
 
+## Quick Links
+
+### API Endpoints Overview
+
+- Authentication
+  - `POST /api/auth/send-otp` - Send OTP for phone verification
+  - `POST /api/auth/verify-otp` - Verify OTP and get access token
+
+- Restaurants
+  - `GET /api/restaurants` - List all restaurants
+  - `GET /api/restaurants/:id` - Get restaurant details
+  - `GET /api/restaurants/:id/menu` - Get restaurant menu
+
+- Orders
+  - `POST /api/orders` - Create new order
+  - `GET /api/orders/:id` - Get order details
+  - `PUT /api/orders/:id/status` - Update order status
+  - `GET /api/orders/user/orders` - Get user's orders
+
+For complete API documentation including request/response formats, authentication requirements, and examples, please refer to the [API Documentation](backend/API_DOCUMENTATION.md).
+
+## Getting Started
+
+1. Clone the repository
+2. Install dependencies:
    ```bash
+   cd backend
    npm install
    ```
-
-2. Start the app
-
+3. Set up environment variables:
    ```bash
-    npx expo start
+   cp .env.example .env
+   ```
+4. Start MongoDB
+5. Run the development server:
+   ```bash
+   npm run dev
    ```
 
-In the output, you'll find options to open the app in a
+## Features
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+- 📱 Phone number based authentication with OTP
+- 🔐 Role-based access control (Customer, Restaurant, Driver, Admin)
+- 🍽️ Restaurant and menu management
+- 📍 Location-based restaurant search
+- 🛵 Real-time order tracking
+- ⭐ Rating and review system
+- 💳 Order management with status tracking
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## Tech Stack
 
-## Get a fresh project
+- Node.js
+- Express.js
+- MongoDB with Mongoose
+- TypeScript
+- JWT Authentication
+- Jest for testing
 
-When you're ready, run:
+## Contributing
 
-```bash
-npm run reset-project
-```
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## License
 
-## Learn more
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-To learn more about developing your project with Expo, look at the following resources:
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
