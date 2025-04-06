@@ -33,7 +33,21 @@ export default function LoginScreen() {
 
     try {
       // Simulate API call to send OTP
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      //for local dev - ifconfig | grep "inet " | grep -v 127.0.0.1
+      const response = await fetch('http://192.168.29.133:5000/api/auth/send-otp', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            phoneNumber: phoneNumber,
+            countryCode: '+91',
+        }),
+      });
+
+      if (!response.ok) {
+          throw new Error('Failed to send OTP');
+      }
       setCurrentStep('otp');
     } catch (error) {
       setError('Failed to send OTP. Please try again.');
@@ -53,7 +67,21 @@ export default function LoginScreen() {
 
     try {
       // Simulate API call to verify OTP
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const response = await fetch('http://192.168.29.133:5000/api/auth/verify-otp', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            phoneNumber: phoneNumber,
+            countryCode: '+91',
+            otp: otp,
+        }),
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to verify OTP');
+        }
       
       // Set auth token on successful verification
       await AsyncStorage.setItem('authToken', 'dummy-auth-token');
